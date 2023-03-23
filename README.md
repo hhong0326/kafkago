@@ -1,5 +1,5 @@
-# kafkago
----
+# kafka-go
+
 Golang-based Kafka client 
 
 confluent-kafka-go is a Golang-based Kafka client developed and maintained by Confluent.

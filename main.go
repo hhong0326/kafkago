@@ -5,7 +5,6 @@ import (
 	"kafkago/kafka/consumer"
 	"log"
 	"os"
-	"time"
 
 	"github.com/confluentinc/confluent-kafka-go/v2/kafka"
 	"github.com/joho/godotenv"
@@ -26,6 +25,8 @@ func main() {
 		"bootstrap.servers": os.Getenv("KAFKA_HOST") + ":" + os.Getenv("KAFKA_PORT"),
 		"group.id":          "chat-group",
 		"auto.offset.reset": "earliest",
+		"fetch.min.bytes":   1024,
+		// "fetch.max.wait.ms": 1000, // not working ㅜㅜ
 	}
 	err = c.Init(config)
 	if err != nil {
@@ -39,22 +40,14 @@ func main() {
 
 	// consumer
 	// run becomes a signal handler to set this to false to break the loop
-	c.Run = true
+	// err = c.ReadMessageConsumer()
+	// if err != nil {
+	// 	panic(err)
+	// }
 
-	fmt.Println("Consumer is running...")
-
-	for c.Run {
-		msg, err := c.Consumer.ReadMessage(time.Second)
-		if err == nil {
-			fmt.Printf("Key is %s\n", string(msg.Key))
-			fmt.Printf("Message on %s: %s\n", msg.TopicPartition, string(msg.Value))
-		} else if !err.(kafka.Error).IsTimeout() {
-			// The client will automatically try to recover from all errors.
-			// Timeout is not considered an error because it is raised by
-			// ReadMessage in absence of messages.
-			fmt.Printf("Consumer error: %v (%v)\n", err, msg)
-		}
+	// poll
+	err = c.PollConsumer()
+	if err != nil {
+		panic(err)
 	}
-
-	c.Consumer.Close()
 }
